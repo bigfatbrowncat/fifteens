@@ -1,8 +1,9 @@
 package bfbc.fifteens.core;
 
 import bfbc.fifteens.InitUpdateRequest;
+import bfbc.fifteens.Starter;
 
-public class FifteensField {
+public class FifteensField implements Cloneable {
 	
 	//   0 1 2 3
 	// 0 0 1 2 3
@@ -13,13 +14,19 @@ public class FifteensField {
 	private int size;
 	private int[] data;
 	
-	public void init() {
+	private void init() {
 		int index = 0;
 		for (int i = 0; i < size * size; i++) {
 			data[i] = index;
 			index ++;
 		}
 	}
+
+	public FifteensField(int[] data, int size) {
+		this.size = size;
+		this.data = data.clone();
+	}
+
 	
 	public FifteensField(int size) {
 		this.size = size;
@@ -31,13 +38,13 @@ public class FifteensField {
 		this(4);
 	}
 	
-	private int toX(int i) {
+	public int toX(int i) {
 		return i % 4;
 	}
-	private int toY(int i) {
+	public int toY(int i) {
 		return i / 4;
 	}
-	private int toI(int x, int y) {
+	public int toI(int x, int y) {
 		return y * 4 + x;
 	}
 	
@@ -89,7 +96,66 @@ public class FifteensField {
 		return null;
 	}
 	
+	public double distanceFromSolution() {
+		double d = 0;
+		for (int i = 0; i < size * size; i++) {
+			int x = toX(i), y = toY(i);
+			int nx = toX(data[i]), ny = toY(data[i]);
+			double dd = Math.pow((nx - x)*(nx - x) + (ny - y)*(ny - y), 1.0);
+			d += dd;
+			if (dd > 0.01) { 
+				//d += size;
+			}
+		}
+		return d;
+	}
+	
+	public Integer getIndexForDirection(Direction dir, int index) {
+    	int x = toX(index), y = toY(index);
+
+		if (dir == Direction.Left) {
+    		if (x > 0) {
+    			return toI(x - 1, y);
+    		} else {
+    			return null;
+    		}
+    	} else if (dir == Direction.Right) {
+    		if (x < getSize() - 1) {
+    			return toI(x + 1, y);
+    		} else {
+    			return null;
+    		}
+    	} else if (dir == Direction.Up) {
+    		if (y > 0) {
+    			return toI(x, y - 1);
+    		} else {
+    			return null;
+    		}
+    	} else if (dir == Direction.Down) {
+    		if (y < getSize() - 1) {
+    			return toI(x, y + 1);
+    		} else {
+    			return null;
+    		}
+    	} else {
+    		throw new RuntimeException("Impossible case");
+    	}
+	}
+	
 	public InitUpdateRequest createInitUpdateRequest() {
 		return new InitUpdateRequest(size, data);
+	}
+	
+	public int getNum(int index) {
+		return data[index];
+	}
+	
+	public int getSize() {
+		return size;
+	}
+	
+	@Override
+	public FifteensField clone() {
+		return new FifteensField(data, size);
 	}
 }

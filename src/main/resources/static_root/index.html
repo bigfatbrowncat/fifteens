@@ -6,8 +6,27 @@
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
 	<style type="text/css">
+		html, body {
+		    display:table;
+		    height:100%;
+		    width:100%;
+		    margin: 0;
+		}
+	
+		.container .field {
+			width: 200pt;
+			margin: 0 auto;
+			margin-top: 35pt;
+		}	
+	
+		.container {
+			display:table-cell;
+    		vertical-align:middle;
+		}
+	
 		.field {
 			position: relative;
+			height: 200pt;
 		}
 		
 		.square {
@@ -32,6 +51,15 @@
 		    -o-transition: 0.5s;
 		    transition: 0.5s;
 		}
+		
+		button {
+			background: #aa2222;
+			border-radius: 5pt;
+			border-width: 0;
+			padding: 7pt;
+			margin: 5pt;
+			color: #fff;
+		}
 	</style>
 	
 	<script type="text/javascript">
@@ -47,10 +75,10 @@
 		var squares = [];
 		var websocket;
 
-		function changeRequest(command, index) {
+		function changeRequest(command, num) {
 			var request = {
 				"command": command,
-				"index": index
+				"num": num
 			};
 			return request;
 		}
@@ -157,11 +185,12 @@
 	</script>
 </head>
 <body>
-	<button id="newGameButton" onclick="newGame();">New game</button>
-	<div id="field" class="field">
-		<!-- <div class="square" style="left: 0pt; top: 0;">1</div>
-		<div class="square" style="left: 50pt; top: 0;">2</div>
-		<div class="square" style="left: 100pt; top: 0;">3</div> -->
+	<div id="menu" style="position: absolute; width: 100%; text-align: center;">
+		<button id="newGameButton" onclick="newGame();">New game</button>
+	</div>
+	<div id="container" class="container">
+		<div id="field" class="field">
+		</div>
 	</div>
 </body>
 </html>

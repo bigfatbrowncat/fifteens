@@ -7,10 +7,10 @@ public class ChangeRequest {
 	@Expose
 	private String command;
 	@Expose
-	private int index;
+	private int num;
 	
-	public int getIndex() {
-		return index;
+	public int getNum() {
+		return num;
 	}
 
 	public String getCommand() {
@@ -19,7 +19,7 @@ public class ChangeRequest {
 
 	public ChangeRequest(String command, int index) {
 		this.command = command;
-		this.index = index;
+		this.num = index;
 	}
 	
 	public static ChangeRequest fromJson(String json) {

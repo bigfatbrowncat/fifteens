@@ -11,4 +11,13 @@ public enum Direction {
 	Direction(int id) {
 		this.id = id;
 	}
+	
+	public static Direction fromId(int id) {
+		for (Direction v : values()) {
+			if (v.id == id) {
+				return v;
+			}
+		}
+		return null;
+	}
 }
