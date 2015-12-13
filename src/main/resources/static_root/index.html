@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="tools.js"></script>
+
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+	<style type="text/css">
+		.field {
+			position: relative;
+		}
+		
+		.square {
+			position: absolute;
+			width: 48pt;
+			height: 48pt;
+			background: #aa2222;
+			border-radius: 10pt;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: 25pt;
+			color: #fff;
+			user-select: none;
+			-webkit-user-select: none;
+			user-select: none;
+			cursor: default;
+			
+		    -webkit-transition: 0.5s;
+		    -moz-transition: 0.5s;
+		    -ms-transition: 0.5s;
+		    -o-transition: 0.5s;
+		    transition: 0.5s;
+		}
+	</style>
+	
+	<script type="text/javascript">
+		// Enum declarations
+		var Direction = {
+			Left : 0,
+			Up : 1,
+			Right : 2,
+			Down : 3
+		};
+	
+		// Global variables
+		var squares = [];
+		var websocket;
+
+		function changeRequest(command, index) {
+			var request = {
+				"command": command,
+				"index": index
+			};
+			return request;
+		}
+		
+		function updateRequest(json) {
+			var request = JSON.parse(json);
+			return request;
+		}
+		
+		// Global functions
+		function initializeField(fieldDiv, data, size) {
+			while (fieldDiv.firstChild != null) {
+				fieldDiv.removeChild(fieldDiv.firstChild);
+			}
+			
+			var index = 0;
+			for (var j = 0; j < size; j++) {
+				for (var i = 0; i < size; i++) {
+					var num = data[index];
+					if (num != 0) {
+						var squareDiv = document.createElement("div");
+						squareDiv.classList.add("square");
+						squareDiv.setAttribute("tabindex", num);
+						squareDiv.style.left = "" + 50 * i + "pt"; 
+						squareDiv.style.top = "" + 50 * j + "pt";
+						squareDiv.innerHTML = num;
+						squareDiv.num = num;
+						squareDiv.pos = {
+							x: i, y: j
+						}
+						
+						squareDiv.move = function (dir) {
+							if (dir == Direction.Left) {
+								this.pos.x--;
+							} else if (dir == Direction.Up) {
+								this.pos.y--;
+							} else if (dir == Direction.Right) {
+								this.pos.x++;
+							} else if (dir == Direction.Down) {
+								this.pos.y++;
+							}
+							this.style.left =  "" + (this.pos.x * 50) + "pt";
+							this.style.top =  "" + (this.pos.y * 50) + "pt";
+						}
+						
+						squareDiv.addEventListener("click", function() {
+							var request = changeRequest("hit", this.num);
+							websocket.send(JSON.stringify(request));
+						}, false);
+						
+						squares[num] = squareDiv;
+						fieldDiv.appendChild(squareDiv);
+					}
+					index++;
+				}
+			}
+		}
+		
+		function connectWebSocket() {
+			var webSocketAddress = buildWebSocketAddress("wsapi");
+			websocket = new WebSocket(webSocketAddress);
+		    
+		    websocket.onopen = function(evt) {
+		    };
+		    websocket.onmessage = function(evt) {
+		    	var uReq = updateRequest(evt.data);
+		    	if (uReq.type == "Move") {
+		    		var moveUReq = uReq.moveUpdateRequest;
+			    	if (moveUReq.direction == "Up") {
+			    		squares[moveUReq.index].move(Direction.Up);
+			    		return;
+			    	} else if (moveUReq.direction == "Down") {
+			    		squares[moveUReq.index].move(Direction.Down);
+			    		return;
+			    	} else if (moveUReq.direction == "Left") {
+			    		squares[moveUReq.index].move(Direction.Left);
+			    		return;
+			    	} else if (moveUReq.direction == "Right") {
+			    		squares[moveUReq.index].move(Direction.Right);
+			    		return;
+			    	}
+		    	} else if (uReq.type == "Init") {
+		    		var fieldDiv = document.getElementById("field");
+		    		initializeField(fieldDiv, uReq.initUpdateRequest.data, uReq.initUpdateRequest.size);
+		    		return;
+		    	}
+		    	
+		    	throw "Invalid update request: " + evt.data;
+		    };
+		    websocket.onerror = function(evt) {
+		    };
+		    websocket.onclose = function(evt) {
+		    };
+		}
+		
+		window.addEventListener("load", function() {
+			connectWebSocket();
+		});
+		
+		function newGame() {
+			var cReq = changeRequest("newgame", 0);
+			websocket.send(JSON.stringify(cReq));
+		}
+	</script>
+</head>
+<body>
+	<button id="newGameButton" onclick="newGame();">New game</button>
+	<div id="field" class="field">
+		<!-- <div class="square" style="left: 0pt; top: 0;">1</div>
+		<div class="square" style="left: 50pt; top: 0;">2</div>
+		<div class="square" style="left: 100pt; top: 0;">3</div> -->
+	</div>
+</body>
+</html>
