@@ -54,11 +54,16 @@ public class FifteensField implements Cloneable {
 		}
 		throw new RuntimeException("Invalid field");
 	}
-	
+
 	public Direction findWayAndMove(int num, boolean doMove) {
 		int i = findI(num);
-		Integer l = null, r = null, u = null, d = null;
 		int x = toX(i), y = toY(i);
+		return findWayAndMoveXY(x, y, doMove);
+	}
+	
+	public Direction findWayAndMoveXY(int x, int y, boolean doMove) {
+		int i = toI(x, y);
+		Integer l = null, r = null, u = null, d = null;
 		if (x > 0) l = toI(x - 1, y);
 		if (x < size - 1) r = toI(x + 1, y);
 		if (y > 0) u = toI(x, y - 1);

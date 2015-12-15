@@ -6,16 +6,6 @@ import bfbc.fifteens.core.FifteensField;
 
 public final class Starter {
 
-	public static class Game {
-		private FifteensField field;
-		public synchronized void startNew() {
-			field = new FifteensField();
-		}
-		
-		public FifteensField getField() {
-			return field;
-		}
-	}
 	
 	public static Game game = new Game();
 	

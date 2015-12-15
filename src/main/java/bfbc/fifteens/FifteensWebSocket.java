@@ -31,7 +31,7 @@ public class FifteensWebSocket {
     
     private void hit(int num) {
     	synchronized (Starter.game) {
-	    	Direction dir = Starter.game.getField().findWayAndMove(num, true);
+	    	Direction dir = Starter.game.findWayAndMove(num, true);
 			if (dir != null) {
 				UpdateRequest uReq = new UpdateRequest(new MoveUpdateRequest(num, dir));
 				broadcastString(uReq.toJson());
@@ -48,7 +48,7 @@ public class FifteensWebSocket {
     	// We are going to move pieces 60 times to shuffle the field
         while (k < 60) {
         	
-        	// Let's csalculate the step weight based on the distance between
+        	// Let's calculate the step weight based on the distance between
         	// the field state after the step and the solution.
         	// Our target is to maximize such distance -- to make a position
         	// that is as far from the solution as possible 
@@ -57,9 +57,9 @@ public class FifteensWebSocket {
         	for (int d = 0; d < 4; d++) {
             	Direction dir = Direction.fromId(d);
             	
-            	Integer index = Starter.game.getField().getIndexForDirection(dir, iZero);
+            	Integer index = Starter.game.getIndexForDirection(dir, iZero);
             	if (index != null) {
-            		FifteensField fCopy = Starter.game.getField().clone();
+            		FifteensField fCopy = Starter.game.cloneField();
             		fCopy.findWayAndMove(fCopy.getNum(index), true);
 	            	double newWeight = fCopy.distanceFromSolution();
 	            	weights[d] = newWeight; 
@@ -104,7 +104,7 @@ public class FifteensWebSocket {
         	} while (!chosen);
         	
         	// Moving actually
-			hit(Starter.game.getField().getNum(iZero));
+			hit(Starter.game.getNum(iZero));
 			// Playing an animation to the user -- let him see our movement
 			waitALittle(150);
 			k++;
@@ -115,8 +115,8 @@ public class FifteensWebSocket {
     public void connected(Session session) {
         sessions.add(session);
     	synchronized (Starter.game) {
-	        if (Starter.game.getField() != null) {
-		        UpdateRequest uReq = new UpdateRequest(Starter.game.getField().createInitUpdateRequest());
+	        if (Starter.game.isStarted()) {
+		        UpdateRequest uReq = new UpdateRequest(Starter.game.createInitUpdateRequest());
 		        try {
 					session.getRemote().sendString(uReq.toJson());
 				} catch (IOException e) {
@@ -151,7 +151,7 @@ public class FifteensWebSocket {
     		synchronized (Starter.game) {
         		Starter.game.startNew();
     		
-	            UpdateRequest uReq = new UpdateRequest(Starter.game.getField().createInitUpdateRequest());
+	            UpdateRequest uReq = new UpdateRequest(Starter.game.createInitUpdateRequest());
 	            broadcastString(uReq.toJson());
 	            waitALittle(500);
 	            
